@@ -572,8 +572,8 @@
                     </div>
                     <div style="display:flex; align-items:center; gap:var(--spacing-xs);">
                         <span style="font-size:11px; color:var(--text-secondary);">并发</span>
-                        <input type="range" id="batchSizeSlider" min="1" max="10" value="3" style="width:60px; accent-color:var(--accent-primary);">
-                        <span id="batchSizeValue" style="font-size:11px; color:var(--text-secondary); min-width:16px;">3</span>
+                        <input type="range" id="batchSizeSlider" min="1" max="10" value="10" style="width:60px; accent-color:var(--accent-primary);">
+                        <span id="batchSizeValue" style="font-size:11px; color:var(--text-secondary); min-width:16px;">10</span>
                     </div>
                 </div>
                 <button id="applyStyleBtn" class="btn btn-primary" style="width:auto; padding:4px 12px;" disabled>应用风格</button>
@@ -925,10 +925,10 @@ IMPORTANT: Return ONLY a valid JSON array, no markdown, no explanation. Example:
             const slider = $('batchSizeSlider');
             const count = identifiedItems.length || 10;
             slider.max = count;
-            if (parseInt(slider.value) > count) {
-                slider.value = count;
-                $('batchSizeValue').textContent = count;
-            }
+            // Default to max(count, 10) or count if less than 10
+            const defaultValue = Math.min(10, count);
+            slider.value = defaultValue;
+            $('batchSizeValue').textContent = defaultValue;
         }
 
         function updateCardSelection(index) {
@@ -947,7 +947,7 @@ IMPORTANT: Return ONLY a valid JSON array, no markdown, no explanation. Example:
         async function applyStyleToSelected() {
             if (selectedItems.size === 0) return showError('请先选择要风格化的物品');
             const items = Array.from(selectedItems);
-            const batchSize = parseInt($('batchSizeSlider').value) || 3;
+            const batchSize = parseInt($('batchSizeSlider').value) || 10;
             applyStyleBtn.disabled = true;
             applyStyleBtn.textContent = `0/${items.length}`;
 
