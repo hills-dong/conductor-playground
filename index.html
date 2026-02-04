@@ -555,7 +555,7 @@ Return ONLY the JSON array, no other text. Example:
                     card.className = 'item-card bg-white rounded-lg shadow-md overflow-hidden card-enter';
                     card.style.animationDelay = `${index * 0.1}s`;
 
-                    // Create cropped image from bbox
+                    // Create cropped image from bbox (max 512x512 for faster generation)
                     let croppedDataUrl = '';
                     if (item.bbox && item.bbox.length === 4) {
                         const canvas = document.createElement('canvas');
@@ -567,10 +567,19 @@ Return ONLY the JSON array, no other text. Example:
                         const w = (item.bbox[2] / 100) * img.width;
                         const h = (item.bbox[3] / 100) * img.height;
 
-                        canvas.width = w;
-                        canvas.height = h;
-                        ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
-                        croppedDataUrl = canvas.toDataURL('image/png');
+                        // Resize to max 512x512 while maintaining aspect ratio
+                        const maxSize = 512;
+                        let targetW = w, targetH = h;
+                        if (w > maxSize || h > maxSize) {
+                            const scale = Math.min(maxSize / w, maxSize / h);
+                            targetW = Math.round(w * scale);
+                            targetH = Math.round(h * scale);
+                        }
+
+                        canvas.width = targetW;
+                        canvas.height = targetH;
+                        ctx.drawImage(img, x, y, w, h, 0, 0, targetW, targetH);
+                        croppedDataUrl = canvas.toDataURL('image/jpeg', 0.85); // JPEG for smaller size
                     }
 
                     // Store cropped image for later use
@@ -629,11 +638,17 @@ Return ONLY the JSON array, no other text. Example:
             applyStyleBtn.disabled = true;
             applyStyleBtn.textContent = `处理中 0/${itemsToProcess.length}`;
 
+            // Process in parallel batches of 3 to avoid rate limits
+            const batchSize = 3;
             let processed = 0;
-            for (const index of itemsToProcess) {
-                await generateCartoon(index);
-                processed++;
-                applyStyleBtn.textContent = `处理中 ${processed}/${itemsToProcess.length}`;
+
+            for (let i = 0; i < itemsToProcess.length; i += batchSize) {
+                const batch = itemsToProcess.slice(i, i + batchSize);
+                await Promise.all(batch.map(async (index) => {
+                    await generateCartoon(index);
+                    processed++;
+                    applyStyleBtn.textContent = `处理中 ${processed}/${itemsToProcess.length}`;
+                }));
             }
 
             applyStyleBtn.textContent = '应用风格';
