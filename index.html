@@ -11,8 +11,8 @@
             transition: all 0.3s ease;
         }
         .upload-area:hover, .upload-area.dragover {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+            border-color: #8b5cf6;
+            background-color: #f5f3ff;
         }
         .card-enter {
             animation: cardEnter 0.3s ease-out;
@@ -23,7 +23,7 @@
         }
         .spinner {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #3b82f6;
+            border-top: 3px solid #8b5cf6;
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -129,18 +129,18 @@
                     type="password"
                     id="apiKeyInput"
                     placeholder="输入你的 Gemini API Key"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                 <button
                     id="saveApiKeyBtn"
-                    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    class="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
                 >
                     保存
                 </button>
             </div>
             <p id="apiKeyStatus" class="mt-2 text-sm text-gray-500"></p>
             <p class="mt-2 text-xs text-gray-400">
-                获取 API Key: <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-500 hover:underline">Google AI Studio</a>
+                获取 API Key: <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-purple-500 hover:underline">Google AI Studio</a>
             </p>
         </section>
 
@@ -164,7 +164,7 @@
             <div class="mt-4 flex gap-3">
                 <button
                     id="analyzeBtn"
-                    class="flex-1 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hidden"
+                    class="flex-1 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hidden"
                 >
                     开始识别物品
                 </button>
@@ -344,10 +344,11 @@
         }
 
         function deselectAll() {
-            selectedItems.forEach(index => {
+            const itemsToDeselect = Array.from(selectedItems);
+            selectedItems.clear();
+            itemsToDeselect.forEach(index => {
                 updateCardSelection(index);
             });
-            selectedItems.clear();
             updateSelectionCount();
         }
 
