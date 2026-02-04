@@ -458,7 +458,7 @@
 
         <!-- API Key -->
         <div class="sidebar-section">
-            <h2 class="section-title">🔑 API Key</h2>
+            <h2 class="section-title">🔑 Gemini API Key</h2>
             <input
                 type="password"
                 id="apiKeyInput"
@@ -473,6 +473,22 @@
             <p style="font-size:10px; color:var(--text-tertiary); margin-top:var(--spacing-xs);">
                 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent-primary);">获取 API Key</a>
             </p>
+        </div>
+
+        <!-- Settings -->
+        <div class="sidebar-section">
+            <h2 class="section-title">⚙️ 设置</h2>
+            <div class="stat-compact">
+                <span class="stat-label">并发数</span>
+                <select id="batchSizeSelect" style="padding:2px 4px; font-size:11px; border:1px solid var(--border-color); border-radius:var(--radius); background:var(--bg-primary);">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+            <p style="font-size:10px; color:var(--text-tertiary); margin-top:var(--spacing-xs);">同时生成图片数量，数值越大速度越快但可能触发限流</p>
         </div>
 
         <!-- Upload -->
@@ -832,12 +848,13 @@ Return ONLY the JSON array, no other text. Example:
         async function applyStyleToSelected() {
             if (selectedItems.size === 0) return showError('请先选择要风格化的物品');
             const items = Array.from(selectedItems);
+            const batchSize = parseInt($('batchSizeSelect').value) || 3;
             applyStyleBtn.disabled = true;
             applyStyleBtn.textContent = `0/${items.length}`;
 
             let processed = 0;
-            for (let i = 0; i < items.length; i += 3) {
-                await Promise.all(items.slice(i, i + 3).map(async idx => {
+            for (let i = 0; i < items.length; i += batchSize) {
+                await Promise.all(items.slice(i, i + batchSize).map(async idx => {
                     await generateCartoon(idx);
                     applyStyleBtn.textContent = `${++processed}/${items.length}`;
                 }));
