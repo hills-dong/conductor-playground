@@ -240,6 +240,29 @@
             min-height: 100vh;
         }
 
+        /* Breadcrumb */
+        .breadcrumb {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .breadcrumb a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            color: var(--accent-primary);
+        }
+        .breadcrumb .separator {
+            margin: 0 var(--spacing-xs);
+            color: var(--text-muted);
+        }
+        .breadcrumb .current {
+            color: var(--text-secondary);
+        }
+
         /* Style Bar */
         .style-bar {
             background: var(--bg-tertiary);
@@ -475,22 +498,6 @@
             </p>
         </div>
 
-        <!-- Settings -->
-        <div class="sidebar-section">
-            <h2 class="section-title">⚙️ 设置</h2>
-            <div class="stat-compact">
-                <span class="stat-label">并发数</span>
-                <select id="batchSizeSelect" style="padding:2px 4px; font-size:11px; border:1px solid var(--border-color); border-radius:var(--radius); background:var(--bg-primary);">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3" selected>3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
-            </div>
-            <p style="font-size:10px; color:var(--text-tertiary); margin-top:var(--spacing-xs);">同时生成图片数量，数值越大速度越快但可能触发限流</p>
-        </div>
-
         <!-- Upload -->
         <div id="uploadSection" class="sidebar-section hidden">
             <h2 class="section-title">📷 上传照片</h2>
@@ -527,6 +534,15 @@
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="#">首页</a>
+            <span class="separator">›</span>
+            <a href="#">工具</a>
+            <span class="separator">›</span>
+            <span class="current">物品管理器</span>
+        </nav>
+
         <!-- Style Bar -->
         <div id="styleBar" class="style-bar hidden">
             <div class="style-bar-row">
@@ -534,6 +550,22 @@
                 <button id="deselectAllBtn" class="style-btn">取消</button>
                 <span id="selectionCount" class="selection-info">已选 0 项</span>
                 <div style="flex:1;"></div>
+                <!-- Config -->
+                <div style="display:flex; align-items:center; gap:var(--spacing-md);">
+                    <div style="display:flex; align-items:center; gap:var(--spacing-xs);">
+                        <span style="font-size:11px; color:var(--text-secondary);">尺寸</span>
+                        <select id="imageSizeSelect" style="padding:2px 4px; font-size:11px; border:1px solid var(--border-color); border-radius:var(--radius); background:var(--bg-primary);">
+                            <option value="128" selected>128px</option>
+                            <option value="256">256px</option>
+                            <option value="512">512px</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:var(--spacing-xs);">
+                        <span style="font-size:11px; color:var(--text-secondary);">并发</span>
+                        <input type="range" id="batchSizeSlider" min="1" max="10" value="3" style="width:60px; accent-color:var(--accent-primary);">
+                        <span id="batchSizeValue" style="font-size:11px; color:var(--text-secondary); min-width:16px;">3</span>
+                    </div>
+                </div>
                 <button id="applyStyleBtn" class="btn btn-primary" style="width:auto; padding:4px 12px;" disabled>应用风格</button>
             </div>
             <div class="style-bar-row" id="styleOptions">
@@ -656,6 +688,11 @@
             selectAllBtn.onclick = selectAll;
             deselectAllBtn.onclick = deselectAll;
             applyStyleBtn.onclick = applyStyleToSelected;
+
+            // Slider value display
+            $('batchSizeSlider').oninput = e => {
+                $('batchSizeValue').textContent = e.target.value;
+            };
         }
 
         function updateSelectionCount() {
@@ -798,7 +835,7 @@ Return ONLY the JSON array, no other text. Example:
                         const y = (item.bbox[1] / 100) * img.height;
                         const w = (item.bbox[2] / 100) * img.width;
                         const h = (item.bbox[3] / 100) * img.height;
-                        const maxSize = 512;
+                        const maxSize = parseInt($('imageSizeSelect')?.value) || 128;
                         let targetW = w, targetH = h;
                         if (w > maxSize || h > maxSize) {
                             const scale = Math.min(maxSize / w, maxSize / h);
@@ -828,8 +865,19 @@ Return ONLY the JSON array, no other text. Example:
                     card.onclick = () => toggleItemSelection(index);
                     itemsGrid.appendChild(card);
                 });
+                updateBatchSliderMax();
             };
             img.src = uploadedImage;
+        }
+
+        function updateBatchSliderMax() {
+            const slider = $('batchSizeSlider');
+            const count = identifiedItems.length || 10;
+            slider.max = count;
+            if (parseInt(slider.value) > count) {
+                slider.value = count;
+                $('batchSizeValue').textContent = count;
+            }
         }
 
         function updateCardSelection(index) {
@@ -848,7 +896,7 @@ Return ONLY the JSON array, no other text. Example:
         async function applyStyleToSelected() {
             if (selectedItems.size === 0) return showError('请先选择要风格化的物品');
             const items = Array.from(selectedItems);
-            const batchSize = parseInt($('batchSizeSelect').value) || 3;
+            const batchSize = parseInt($('batchSizeSlider').value) || 3;
             applyStyleBtn.disabled = true;
             applyStyleBtn.textContent = `0/${items.length}`;
 
