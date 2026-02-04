@@ -25,8 +25,8 @@
             border: 3px solid #f3f3f3;
             border-top: 3px solid #8b5cf6;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -47,24 +47,14 @@
             transition: all 0.2s ease;
         }
         .item-card.selected {
-            ring: 3px;
-            ring-color: #8b5cf6;
             box-shadow: 0 0 0 3px #8b5cf6;
         }
         .item-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .style-bar {
-            transition: all 0.3s ease;
-        }
-        .style-bar.sticky {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .item-card.selected:hover {
+            box-shadow: 0 0 0 3px #8b5cf6, 0 4px 12px rgba(0,0,0,0.15);
         }
         .style-btn {
             transition: all 0.2s ease;
@@ -74,103 +64,75 @@
             color: white;
             border-color: #8b5cf6;
         }
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 16rem;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        /* Main content */
+        .main-content {
+            margin-left: 16rem;
+            min-height: 100vh;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Sticky Style Bar (hidden until items are recognized) -->
-    <div id="styleBar" class="style-bar bg-white border-b border-gray-200 p-4 hidden">
-        <div class="container mx-auto max-w-4xl">
-            <div class="flex flex-wrap items-center gap-2 mb-3">
-                <!-- Selection controls -->
-                <button id="selectAllBtn" class="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">全选</button>
-                <button id="deselectAllBtn" class="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">取消全选</button>
-                <span id="selectionCount" class="text-xs text-gray-500 ml-2">已选择 0 项</span>
-                <div class="flex-1"></div>
-                <button id="applyStyleBtn" class="px-4 py-1.5 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed">
-                    应用风格
-                </button>
-            </div>
-            <!-- Style options -->
-            <div class="flex flex-wrap gap-2 mb-2" id="styleOptions">
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg active" data-style="kawaii">可爱萌系</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="pixel">像素风格</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="watercolor">水彩手绘</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="flat">扁平极简</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="anime">日系动漫</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="sketch">素描线稿</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="3d">3D卡通</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="oilpaint">油画风格</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="pop">波普艺术</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="lowpoly">低多边形</button>
-                <button class="style-btn px-3 py-1.5 text-xs border border-gray-300 rounded-lg" data-style="custom">自定义</button>
-            </div>
-            <!-- Custom style input -->
-            <div id="customStyleInput" class="hidden">
-                <input type="text" id="customPrompt" placeholder="输入自定义风格描述，如：赛博朋克风格、中国水墨画风格..."
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
-            </div>
-        </div>
-    </div>
-    <!-- Placeholder for sticky bar -->
-    <div id="styleBarPlaceholder" class="hidden"></div>
-
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">物品管理器</h1>
-            <p class="text-gray-600">上传书桌或卧室照片，AI 自动识别物品并生成卡通图片</p>
-        </header>
+    <!-- Left Sidebar -->
+    <aside class="sidebar bg-white border-r border-gray-200 p-4 flex flex-col">
+        <!-- Logo -->
+        <h1 class="text-lg font-bold text-purple-600 mb-4">物品管理器</h1>
 
         <!-- API Key Configuration -->
-        <section id="apiKeySection" class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4">配置 Gemini API Key</h2>
-            <div class="flex gap-3">
-                <input
-                    type="password"
-                    id="apiKeyInput"
-                    placeholder="输入你的 Gemini API Key"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                >
-                <button
-                    id="saveApiKeyBtn"
-                    class="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-                >
-                    保存
-                </button>
-            </div>
-            <p id="apiKeyStatus" class="mt-2 text-sm text-gray-500"></p>
-            <p class="mt-2 text-xs text-gray-400">
-                获取 API Key: <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-purple-500 hover:underline">Google AI Studio</a>
+        <section id="apiKeySection" class="mb-4">
+            <h2 class="text-sm font-semibold text-gray-700 mb-2">API Key</h2>
+            <input
+                type="password"
+                id="apiKeyInput"
+                placeholder="输入 Gemini API Key"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2"
+            >
+            <button
+                id="saveApiKeyBtn"
+                class="w-full px-3 py-2 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+            >
+                保存
+            </button>
+            <p id="apiKeyStatus" class="mt-1 text-xs text-gray-500"></p>
+            <p class="mt-1 text-xs text-gray-400">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-purple-500 hover:underline">获取 API Key</a>
             </p>
         </section>
 
         <!-- Image Upload -->
-        <section id="uploadSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
-            <h2 class="text-lg font-semibold text-gray-700 mb-4">上传照片</h2>
+        <section id="uploadSection" class="flex-1 hidden">
+            <h2 class="text-sm font-semibold text-gray-700 mb-2">上传照片</h2>
             <div
                 id="uploadArea"
-                class="upload-area rounded-lg p-8 text-center cursor-pointer"
+                class="upload-area rounded-lg p-4 text-center cursor-pointer"
             >
                 <div id="uploadPlaceholder">
-                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    <p class="text-gray-600 mb-2">点击或拖拽上传照片</p>
-                    <p class="text-sm text-gray-400">支持 JPG、PNG 格式</p>
+                    <p class="text-xs text-gray-600">点击或拖拽上传</p>
                 </div>
-                <img id="previewImage" class="max-h-64 mx-auto rounded-lg hidden" alt="预览">
+                <img id="previewImage" class="max-h-40 mx-auto rounded-lg hidden" alt="预览">
             </div>
             <input type="file" id="fileInput" accept="image/jpeg,image/png" class="hidden">
-            <div class="mt-4 flex gap-3">
+            <div class="mt-3 space-y-2">
                 <button
                     id="analyzeBtn"
-                    class="flex-1 px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hidden"
+                    class="w-full px-3 py-2 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed hidden"
                 >
-                    开始识别物品
+                    开始识别
                 </button>
                 <button
                     id="resetBtn"
-                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors hidden"
+                    class="w-full px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors hidden"
                 >
                     重新上传
                 </button>
@@ -178,28 +140,67 @@
         </section>
 
         <!-- Progress -->
-        <section id="progressSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
-            <div class="flex items-center gap-3">
+        <section id="progressSection" class="mt-4 hidden">
+            <div class="flex items-center gap-2">
                 <div class="spinner"></div>
-                <span id="progressText" class="text-gray-600">正在分析图片...</span>
+                <span id="progressText" class="text-xs text-gray-600">正在识别...</span>
             </div>
         </section>
+    </aside>
 
-        <!-- Results -->
-        <section id="resultsSection" class="hidden">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-700">识别结果</h2>
-                <p class="text-sm text-gray-500">点击选择物品，然后在顶部选择风格</p>
+    <!-- Right Main Content -->
+    <main class="main-content">
+        <!-- Style Bar -->
+        <div id="styleBar" class="sticky top-0 bg-white border-b border-gray-200 p-3 z-40 hidden">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <button id="selectAllBtn" class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">全选</button>
+                <button id="deselectAllBtn" class="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200">取消</button>
+                <span id="selectionCount" class="text-xs text-gray-500">已选 0 项</span>
+                <div class="flex-1"></div>
+                <button id="applyStyleBtn" class="px-3 py-1 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed">
+                    应用风格
+                </button>
             </div>
-            <div id="itemsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="flex flex-wrap gap-1.5" id="styleOptions">
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded active" data-style="kawaii">可爱萌系</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="pixel">像素</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="watercolor">水彩</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="flat">扁平</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="anime">动漫</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="sketch">素描</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="3d">3D</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="oilpaint">油画</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="pop">波普</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="lowpoly">低多边形</button>
+                <button class="style-btn px-2 py-1 text-xs border border-gray-300 rounded" data-style="custom">自定义</button>
+            </div>
+            <div id="customStyleInput" class="mt-2 hidden">
+                <input type="text" id="customPrompt" placeholder="输入自定义风格描述..."
+                    class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <section id="resultsSection" class="p-4 hidden">
+            <div id="itemsGrid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 <!-- Items will be inserted here -->
             </div>
         </section>
 
-        <!-- Error Message -->
-        <div id="errorMessage" class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg hidden">
-            <span id="errorText"></span>
+        <!-- Empty State -->
+        <div id="emptyState" class="flex items-center justify-center h-screen text-gray-400">
+            <div class="text-center">
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <p class="text-sm">上传照片开始识别物品</p>
+            </div>
         </div>
+    </main>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm hidden">
+        <span id="errorText"></span>
     </div>
 
     <script>
@@ -210,8 +211,7 @@
         let selectedItems = new Set();
         let selectedStyle = 'kawaii';
 
-        // Style prompts - all preserve original color scheme
-        // Use {ITEM} as placeholder for the specific item name
+        // Style prompts
         const stylePrompts = {
             kawaii: "This image contains a {ITEM}. Transform ONLY the {ITEM} into a cute kawaii-style cartoon. White background. Remove ALL other objects, keep ONLY the {ITEM}. IMPORTANT: Preserve the original color scheme. Round shapes, big eyes if applicable, adorable chibi style like Sanrio characters.",
             pixel: "This image contains a {ITEM}. Transform ONLY the {ITEM} into pixel art style. White background. Remove ALL other objects, keep ONLY the {ITEM}. IMPORTANT: Preserve the original color scheme. 16-bit retro game aesthetic, blocky pixels, clear outlines.",
@@ -229,7 +229,6 @@
         const apiKeyInput = document.getElementById('apiKeyInput');
         const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
         const apiKeyStatus = document.getElementById('apiKeyStatus');
-        const apiKeySection = document.getElementById('apiKeySection');
         const uploadSection = document.getElementById('uploadSection');
         const uploadArea = document.getElementById('uploadArea');
         const uploadPlaceholder = document.getElementById('uploadPlaceholder');
@@ -244,84 +243,56 @@
         const errorMessage = document.getElementById('errorMessage');
         const errorText = document.getElementById('errorText');
         const styleBar = document.getElementById('styleBar');
-        const styleBarPlaceholder = document.getElementById('styleBarPlaceholder');
         const selectAllBtn = document.getElementById('selectAllBtn');
         const deselectAllBtn = document.getElementById('deselectAllBtn');
         const selectionCount = document.getElementById('selectionCount');
         const applyStyleBtn = document.getElementById('applyStyleBtn');
         const customStyleInput = document.getElementById('customStyleInput');
         const customPrompt = document.getElementById('customPrompt');
+        const emptyState = document.getElementById('emptyState');
 
         // Initialize
         function init() {
             if (apiKey) {
                 apiKeyInput.value = apiKey;
-                apiKeyStatus.textContent = 'API Key 已保存';
-                apiKeyStatus.className = 'mt-2 text-sm text-green-600';
+                apiKeyStatus.textContent = '已保存';
+                apiKeyStatus.className = 'mt-1 text-xs text-green-600';
                 uploadSection.classList.remove('hidden');
             }
             setupEventListeners();
         }
 
         function setupEventListeners() {
-            // API Key
             saveApiKeyBtn.addEventListener('click', saveApiKey);
             apiKeyInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') saveApiKey();
             });
 
-            // Upload
             uploadArea.addEventListener('click', () => fileInput.click());
             uploadArea.addEventListener('dragover', handleDragOver);
             uploadArea.addEventListener('dragleave', handleDragLeave);
             uploadArea.addEventListener('drop', handleDrop);
             fileInput.addEventListener('change', handleFileSelect);
 
-            // Actions
             analyzeBtn.addEventListener('click', analyzeImage);
             resetBtn.addEventListener('click', resetUpload);
 
-            // Style bar - style selection
             document.querySelectorAll('#styleOptions .style-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('#styleOptions .style-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     selectedStyle = btn.dataset.style;
-                    // Show/hide custom input
-                    if (selectedStyle === 'custom') {
-                        customStyleInput.classList.remove('hidden');
-                    } else {
-                        customStyleInput.classList.add('hidden');
-                    }
+                    customStyleInput.classList.toggle('hidden', selectedStyle !== 'custom');
                 });
             });
 
-            // Selection controls
             selectAllBtn.addEventListener('click', selectAll);
             deselectAllBtn.addEventListener('click', deselectAll);
             applyStyleBtn.addEventListener('click', applyStyleToSelected);
-
-            // Sticky bar on scroll
-            window.addEventListener('scroll', handleScroll);
-        }
-
-        function handleScroll() {
-            if (!styleBar.classList.contains('hidden')) {
-                const barRect = styleBarPlaceholder.getBoundingClientRect();
-                if (barRect.top <= 0) {
-                    styleBar.classList.add('sticky');
-                    styleBarPlaceholder.style.height = styleBar.offsetHeight + 'px';
-                    styleBarPlaceholder.classList.remove('hidden');
-                } else {
-                    styleBar.classList.remove('sticky');
-                    styleBarPlaceholder.classList.add('hidden');
-                    styleBarPlaceholder.style.height = '0';
-                }
-            }
         }
 
         function updateSelectionCount() {
-            selectionCount.textContent = `已选择 ${selectedItems.size} 项`;
+            selectionCount.textContent = `已选 ${selectedItems.size} 项`;
             applyStyleBtn.disabled = selectedItems.size === 0;
         }
 
@@ -346,9 +317,7 @@
         function deselectAll() {
             const itemsToDeselect = Array.from(selectedItems);
             selectedItems.clear();
-            itemsToDeselect.forEach(index => {
-                updateCardSelection(index);
-            });
+            itemsToDeselect.forEach(index => updateCardSelection(index));
             updateSelectionCount();
         }
 
@@ -360,8 +329,8 @@
             }
             apiKey = key;
             localStorage.setItem('gemini_api_key', key);
-            apiKeyStatus.textContent = 'API Key 已保存';
-            apiKeyStatus.className = 'mt-2 text-sm text-green-600';
+            apiKeyStatus.textContent = '已保存';
+            apiKeyStatus.className = 'mt-1 text-xs text-green-600';
             uploadSection.classList.remove('hidden');
         }
 
@@ -378,9 +347,8 @@
         function handleDrop(e) {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
             }
         }
 
@@ -418,7 +386,7 @@
             fileInput.value = '';
             resultsSection.classList.add('hidden');
             styleBar.classList.add('hidden');
-            styleBarPlaceholder.classList.add('hidden');
+            emptyState.classList.remove('hidden');
             itemsGrid.innerHTML = '';
             identifiedItems = [];
             selectedItems.clear();
@@ -429,7 +397,7 @@
 
             analyzeBtn.disabled = true;
             progressSection.classList.remove('hidden');
-            progressText.textContent = '正在识别物品...';
+            progressText.textContent = '正在识别...';
 
             try {
                 const base64Data = uploadedImage.split(',')[1];
@@ -437,9 +405,7 @@
 
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
@@ -453,18 +419,10 @@
 Return ONLY the JSON array, no other text. Example:
 [{"name":"电脑","nameEn":"computer","description":"一台电脑","bbox":[10,20,30,25]}]`
                                 },
-                                {
-                                    inline_data: {
-                                        mime_type: mimeType,
-                                        data: base64Data
-                                    }
-                                }
+                                { inline_data: { mime_type: mimeType, data: base64Data } }
                             ]
                         }],
-                        generationConfig: {
-                            temperature: 0.1,
-                            maxOutputTokens: 8192
-                        }
+                        generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
                     })
                 });
 
@@ -476,59 +434,29 @@ Return ONLY the JSON array, no other text. Example:
                 const data = await response.json();
                 const text = data.candidates[0].content.parts[0].text;
 
-                // Parse JSON from response - handle various formats
                 let jsonStr = text;
-                console.log('Raw Gemini response:', text);
-
-                // Remove markdown code block if present
                 const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-                if (codeBlockMatch) {
-                    jsonStr = codeBlockMatch[1].trim();
-                }
+                if (codeBlockMatch) jsonStr = codeBlockMatch[1].trim();
 
-                // Try to find JSON array - use greedy match and find matching brackets
                 let startIdx = jsonStr.indexOf('[');
-                if (startIdx === -1) {
-                    console.error('No JSON array found in:', jsonStr);
-                    throw new Error('无法解析识别结果，请重试');
-                }
+                if (startIdx === -1) throw new Error('无法解析识别结果');
 
-                // Find the matching closing bracket
-                let depth = 0;
-                let endIdx = -1;
+                let depth = 0, endIdx = -1;
                 for (let i = startIdx; i < jsonStr.length; i++) {
                     if (jsonStr[i] === '[') depth++;
                     if (jsonStr[i] === ']') depth--;
-                    if (depth === 0) {
-                        endIdx = i;
-                        break;
-                    }
+                    if (depth === 0) { endIdx = i; break; }
                 }
 
-                if (endIdx === -1) {
-                    console.error('No matching bracket found in:', jsonStr);
-                    throw new Error('无法解析识别结果，请重试');
-                }
+                if (endIdx === -1) throw new Error('无法解析识别结果');
 
-                // Clean up the JSON string
                 let cleanJson = jsonStr.substring(startIdx, endIdx + 1)
-                    .replace(/,\s*]/g, ']')  // Remove trailing commas
-                    .replace(/,\s*}/g, '}')  // Remove trailing commas in objects
-                    .replace(/[\x00-\x1F\x7F]/g, ' '); // Remove control characters
+                    .replace(/,\s*]/g, ']')
+                    .replace(/,\s*}/g, '}')
+                    .replace(/[\x00-\x1F\x7F]/g, ' ');
 
-                console.log('Cleaned JSON:', cleanJson);
-
-                try {
-                    identifiedItems = JSON.parse(cleanJson);
-                } catch (parseError) {
-                    console.error('JSON parse error:', parseError);
-                    console.error('Attempted to parse:', cleanJson);
-                    throw new Error('JSON 格式错误，请查看控制台');
-                }
-
-                if (!identifiedItems.length) {
-                    throw new Error('未识别到任何物品');
-                }
+                identifiedItems = JSON.parse(cleanJson);
+                if (!identifiedItems.length) throw new Error('未识别到任何物品');
 
                 displayItems();
 
@@ -543,32 +471,29 @@ Return ONLY the JSON array, no other text. Example:
         function displayItems() {
             resultsSection.classList.remove('hidden');
             styleBar.classList.remove('hidden');
+            emptyState.classList.add('hidden');
             itemsGrid.innerHTML = '';
             selectedItems.clear();
             updateSelectionCount();
 
-            // Load original image to crop items
             const img = new Image();
             img.onload = () => {
                 identifiedItems.forEach((item, index) => {
                     const card = document.createElement('div');
                     card.id = `card-${index}`;
-                    card.className = 'item-card bg-white rounded-lg shadow-md overflow-hidden card-enter';
-                    card.style.animationDelay = `${index * 0.1}s`;
+                    card.className = 'item-card bg-white rounded-lg shadow overflow-hidden card-enter';
+                    card.style.animationDelay = `${index * 0.05}s`;
 
-                    // Create cropped image from bbox (max 512x512 for faster generation)
                     let croppedDataUrl = '';
                     if (item.bbox && item.bbox.length === 4) {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
 
-                        // Convert percentage to pixels
                         const x = (item.bbox[0] / 100) * img.width;
                         const y = (item.bbox[1] / 100) * img.height;
                         const w = (item.bbox[2] / 100) * img.width;
                         const h = (item.bbox[3] / 100) * img.height;
 
-                        // Resize to max 512x512 while maintaining aspect ratio
                         const maxSize = 512;
                         let targetW = w, targetH = h;
                         if (w > maxSize || h > maxSize) {
@@ -580,35 +505,31 @@ Return ONLY the JSON array, no other text. Example:
                         canvas.width = targetW;
                         canvas.height = targetH;
                         ctx.drawImage(img, x, y, w, h, 0, 0, targetW, targetH);
-                        croppedDataUrl = canvas.toDataURL('image/jpeg', 0.85); // JPEG for smaller size
+                        croppedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
                     }
 
-                    // Store cropped image for later use
                     item.croppedDataUrl = croppedDataUrl;
 
                     card.innerHTML = `
                         <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden relative" id="image-${index}">
                             ${croppedDataUrl
                                 ? `<img src="${croppedDataUrl}" class="w-full h-full object-contain" alt="${item.name}">`
-                                : `<svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                : `<svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>`
                             }
-                            <div class="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white bg-white/80 flex items-center justify-center check-mark">
-                                <svg class="w-4 h-4 text-purple-500 hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <div class="absolute top-1 right-1 w-5 h-5 rounded-full border-2 border-white bg-white/80 flex items-center justify-center check-mark">
+                                <svg class="w-3 h-3 text-purple-500 hidden" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                 </svg>
                             </div>
                         </div>
-                        <div class="p-3">
-                            <h3 class="font-medium text-gray-800 truncate">${item.name}</h3>
-                            <p class="text-sm text-gray-500 truncate">${item.description}</p>
+                        <div class="p-2">
+                            <h3 class="text-xs font-medium text-gray-800 truncate">${item.name}</h3>
                         </div>
                     `;
 
-                    // Click to select
                     card.addEventListener('click', () => toggleItemSelection(index));
-
                     itemsGrid.appendChild(card);
                 });
             };
@@ -637,9 +558,8 @@ Return ONLY the JSON array, no other text. Example:
 
             const itemsToProcess = Array.from(selectedItems);
             applyStyleBtn.disabled = true;
-            applyStyleBtn.textContent = `处理中 0/${itemsToProcess.length}`;
+            applyStyleBtn.textContent = `0/${itemsToProcess.length}`;
 
-            // Process in parallel batches of 3 to avoid rate limits
             const batchSize = 3;
             let processed = 0;
 
@@ -648,7 +568,7 @@ Return ONLY the JSON array, no other text. Example:
                 await Promise.all(batch.map(async (index) => {
                     await generateCartoon(index);
                     processed++;
-                    applyStyleBtn.textContent = `处理中 ${processed}/${itemsToProcess.length}`;
+                    applyStyleBtn.textContent = `${processed}/${itemsToProcess.length}`;
                 }));
             }
 
@@ -663,7 +583,6 @@ Return ONLY the JSON array, no other text. Example:
             const imageContainer = document.getElementById(`image-${index}`);
             if (!imageContainer) return;
 
-            // Show loading state
             const originalContent = imageContainer.innerHTML;
             imageContainer.innerHTML = `
                 <div class="generating-placeholder w-full h-full flex items-center justify-center">
@@ -675,13 +594,10 @@ Return ONLY the JSON array, no other text. Example:
                 const base64Data = item.croppedDataUrl.split(',')[1];
                 const mimeType = item.croppedDataUrl.split(';')[0].split(':')[1];
 
-                // Get prompt based on selected style
                 let prompt;
                 if (selectedStyle === 'custom') {
                     const customText = customPrompt.value.trim();
-                    if (!customText) {
-                        throw new Error('请输入自定义风格描述');
-                    }
+                    if (!customText) throw new Error('请输入自定义风格描述');
                     prompt = `This image contains a {ITEM}. Transform ONLY the {ITEM} into ${customText}. White background. Remove ALL other objects, keep ONLY the {ITEM}. IMPORTANT: Preserve the original color scheme.`;
                 } else {
                     prompt = stylePrompts[selectedStyle];
@@ -690,19 +606,12 @@ Return ONLY the JSON array, no other text. Example:
 
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
                                 { text: prompt },
-                                {
-                                    inline_data: {
-                                        mime_type: mimeType,
-                                        data: base64Data
-                                    }
-                                }
+                                { inline_data: { mime_type: mimeType, data: base64Data } }
                             ]
                         }],
                         generationConfig: {
@@ -726,8 +635,8 @@ Return ONLY the JSON array, no other text. Example:
                     const outputMimeType = imagePart.inlineData.mimeType || 'image/png';
                     imageContainer.innerHTML = `
                         <img src="data:${outputMimeType};base64,${imageData}" class="w-full h-full object-contain" alt="${item.name}">
-                        <div class="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white bg-white/80 flex items-center justify-center check-mark">
-                            <svg class="w-4 h-4 text-purple-500 ${selectedItems.has(index) ? '' : 'hidden'}" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="absolute top-1 right-1 w-5 h-5 rounded-full border-2 border-white bg-white/80 flex items-center justify-center check-mark">
+                            <svg class="w-3 h-3 text-purple-500 ${selectedItems.has(index) ? '' : 'hidden'}" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
                         </div>
@@ -745,12 +654,9 @@ Return ONLY the JSON array, no other text. Example:
         function showError(message) {
             errorText.textContent = message;
             errorMessage.classList.remove('hidden');
-            setTimeout(() => {
-                errorMessage.classList.add('hidden');
-            }, 5000);
+            setTimeout(() => errorMessage.classList.add('hidden'), 5000);
         }
 
-        // Initialize app
         init();
     </script>
 </body>
