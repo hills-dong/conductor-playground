@@ -555,9 +555,10 @@
                     <div style="display:flex; align-items:center; gap:var(--spacing-xs);">
                         <span style="font-size:11px; color:var(--text-secondary);">尺寸</span>
                         <select id="imageSizeSelect" style="padding:2px 4px; font-size:11px; border:1px solid var(--border-color); border-radius:var(--radius); background:var(--bg-primary);">
-                            <option value="128" selected>128px</option>
+                            <option value="128">128px</option>
                             <option value="256">256px</option>
                             <option value="512">512px</option>
+                            <option value="1024" selected>1024px</option>
                         </select>
                     </div>
                     <div style="display:flex; align-items:center; gap:var(--spacing-xs);">
@@ -876,7 +877,7 @@ IMPORTANT: Return ONLY a valid JSON array, no markdown, no explanation. Example:
                         const y = (item.bbox[1] / 100) * img.height;
                         const w = (item.bbox[2] / 100) * img.width;
                         const h = (item.bbox[3] / 100) * img.height;
-                        const maxSize = parseInt($('imageSizeSelect')?.value) || 128;
+                        const maxSize = parseInt($('imageSizeSelect')?.value) || 1024;
                         let targetW = w, targetH = h;
                         if (w > maxSize || h > maxSize) {
                             const scale = Math.min(maxSize / w, maxSize / h);
