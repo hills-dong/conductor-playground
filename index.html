@@ -496,12 +496,7 @@
         <!-- API Key -->
         <div class="sidebar-section">
             <h2 class="section-title">🔑 Gemini API Key</h2>
-            <input
-                type="password"
-                id="apiKeyInput"
-                placeholder="输入 Gemini API Key"
-                style="width:100%; padding:var(--spacing-sm); font-size:12px; border:1px solid var(--border-color); border-radius:var(--radius); margin-bottom:var(--spacing-sm);"
-            >
+            <input type="text" id="apiKeyInput" placeholder="输入 Gemini API Key" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%; padding:8px; font-size:12px; border:1px solid var(--border-color); border-radius:var(--radius); margin-bottom:var(--spacing-sm); background:#fff;">
             <button id="saveApiKeyBtn" class="btn btn-primary">保存</button>
             <div class="stat-compact" style="margin-top:var(--spacing-sm);">
                 <span class="stat-label">状态</span>
@@ -723,7 +718,7 @@
 
         function setupEventListeners() {
             saveApiKeyBtn.onclick = saveApiKey;
-            apiKeyInput.onkeypress = e => e.key === 'Enter' && saveApiKey();
+            apiKeyInput.addEventListener('keyup', e => { if (e.key === 'Enter') saveApiKey(); });
 
             uploadArea.onclick = () => fileInput.click();
             uploadArea.ondragover = e => { e.preventDefault(); uploadArea.classList.add('dragover'); };
