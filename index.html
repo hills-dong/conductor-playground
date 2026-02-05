@@ -855,8 +855,35 @@
         const customPrompt = $('customPrompt');
         const emptyState = $('emptyState');
 
+        // Key obfuscation (simple but not obvious)
+        function encodeKey(key) {
+            // Base64 -> reverse -> add prefix
+            return 'x' + btoa(key).split('').reverse().join('');
+        }
+
+        function decodeKey(encoded) {
+            if (!encoded || encoded[0] !== 'x') return null;
+            try {
+                // Remove prefix -> reverse -> Base64 decode
+                return atob(encoded.slice(1).split('').reverse().join(''));
+            } catch { return null; }
+        }
+
         // Initialize
         function init() {
+            // Check URL for shared key
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedKey = urlParams.get('k');
+            if (encodedKey) {
+                const decodedKey = decodeKey(encodedKey);
+                if (decodedKey) {
+                    apiKey = decodedKey;
+                    localStorage.setItem('gemini_api_key', decodedKey);
+                    // Clean URL
+                    window.history.replaceState({}, '', window.location.pathname);
+                }
+            }
+
             if (apiKey) {
                 apiKeyInput.value = apiKey;
                 apiKeyStatus.textContent = '已配置';
